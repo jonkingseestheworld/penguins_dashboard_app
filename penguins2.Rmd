@@ -1,0 +1,365 @@
+---
+title: "Antarctica Penguins Learning Dashboard"
+author: Johnny KL
+output:
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    social: twitter
+    source_code: https://github.com/jonkingseestheworld/penguins_dashboard_app
+date: "`r Sys.Date()`"
+runtime: shiny
+resource_files:
+- -select-.png
+- Adelie.JPG
+- Chinstrap.JPG
+- Gentoo.JPG
+---
+
+<style>
+.navbar {
+  background-color: #074d3e;
+  border-color: #074d3e
+}
+
+.navbar-inverse .navbar-nav > li > a:hover,
+.navbar-inverse .navbar-nav > li > a:focus {
+    background-color: #c35dca;
+    color: white;
+}
+.navbar-inverse .navbar-nav > .active > a,
+.navbar-inverse .navbar-nav > .active > a:hover,
+.navbar-inverse .navbar-nav > .active > a:focus {
+  color: white;
+  background-color: #c35dca;
+}
+.navbar-inverse .navbar-toggle:hover,
+.navbar-inverse .navbar-toggle:focus {
+  background-color: #c35dca;
+}
+.navbar-inverse .navbar-collapse,
+.navbar-inverse .navbar-form {
+  border-color: #c35dca;
+}
+</style>
+
+```{r global, include=FALSE}
+library(flexdashboard)
+library(knitr)
+library(palmerpenguins)
+library(shiny)
+library(tidyverse)
+
+# load data in 'global' chunk so it can be shared by all users of the dashboard
+penguins <- palmerpenguins::penguins
+
+```
+
+By Species
+=====================================   
+
+Row {.sidebar data-width=330}
+-------------------------------------
+
+The <b>palmerpenguins</b> data contains various size measurements for three penguin species (Adelie, Gentoo, Chinstrap) observed on three islands in the Palmer Archipelago, Antarctica over a study period of three years.
+
+<br>
+
+```{r}
+
+selectInput("speciesT", label = "Select a species to start visualizing its data:",
+            choices = c("-select-", "Adelie", "Gentoo", "Chinstrap"), selected = "-select-")
+
+
+selPenguin <- reactive({
+  penguins %>% filter(species==input$speciesT)
+})
+
+
+radioButtons("toPlot", label = "Plotting:",
+               c("Mass x Culmen Length" = 1,
+                 "Mass x Culmen Depth" = 2,
+                 "Mass x Flipper Length" = 3,
+                 "Culmen Length x Culmen Depth" = 4,
+                 "Culmen Length x Flipper Length" = 5,
+                 "Culmen Depth x Flipper Length" = 6))
+
+
+```
+<br>
+The penguins data were collected from 2007 - 2009 by Dr. Kristen Gorman with the Palmer Station Long Term Ecological Research Program, part of the US Long Term Ecological Research Network. 
+
+<b>Acknowledgement</b>
+
+<a href="https://github.com/allisonhorst/palmerpenguins/" target="_blank">Link to <b>palmerpenguins</b> site to know more about the dataset</a>
+
+Illustrations of penguins by <a href="https://allisonhorst.github.io/palmerpenguins/" target="_blank">Allison Horst</a>
+
+
+
+Row {data-width=330}
+-------------------------------------
+
+### The Species you are exploring! {.value-box}
+
+```{r}
+
+renderValueBox({
+  if(input$speciesT =="-select-"){
+    birdSpec <- "Select First!"
+  }
+  else{
+     birdSpec <- as.character(input$speciesT)
+  }
+  
+  valueBox(birdSpec, icon = "fa-kiwi-bird", color =   "#004d00")
+}) 
+```
+
+
+
+
+### No. of birds measured {.value-box}
+
+```{r}
+
+renderValueBox({
+  if(input$speciesT =="-select-"){
+    nPenguin <- 0
+  }
+  else{
+     nPenguin <- nrow(selPenguin())
+  }
+  
+  valueBox(nPenguin, icon = "fa-calculator", color = "green")
+}) #fa7404
+
+```
+
+
+
+### Average culmen length {.value-box}
+
+```{r}
+
+
+renderValueBox({
+  
+  if(input$speciesT =="-select-"){
+    cul_len <- "Select a species!"
+  } 
+  else{
+    cul_len <- paste0(round(mean(selPenguin()$bill_length_mm, na.rm = TRUE)), " mm")
+    }
+
+  
+  valueBox(cul_len, icon = "fa-tape", color = "green")
+})
+
+```
+
+
+
+### Average culmen depth {.value-box}
+
+```{r}
+
+renderValueBox({
+  if(input$speciesT =="-select-"){
+    cul_depth <- "Select a species!"
+    } 
+  else{
+    cul_depth <- paste0(round(mean(selPenguin()$bill_depth_mm, na.rm = TRUE)), " mm")
+    }
+  
+  valueBox(cul_depth, icon = "fa-tape", color = "green")
+  
+})
+
+```
+
+
+
+### Average body mass 
+
+```{r}
+
+renderGauge({
+  
+  spec_mass <- round(mean(selPenguin()$body_mass_g, na.rm = TRUE))
+
+  gauge(spec_mass, min = 1000, #min(selPenguin()$body_mass_g, na.rm=TRUE), 
+      max = 6000, #max(selPenguin()$body_mass_g, na.rm = TRUE), 
+      symbol = 'g', 
+      gaugeSectors(
+        success = c(6000, 6300), 
+        warning = c(3000, 5999), 
+        danger = c(2700, 2999)),
+      abbreviate = FALSE)
+})
+
+```
+
+
+
+### Average flipper length {.value-box}
+
+```{r}
+
+renderValueBox({
+  
+  if(input$speciesT =="-select-"){
+    flip_len <- "Select a species!"
+    } 
+  else{
+    flip_len <-
+      paste0(round(mean(selPenguin()$flipper_length_mm, na.rm = TRUE)), " mm")}
+  
+  valueBox(flip_len, icon = "fa-tape", color = "green")
+  
+})
+
+
+```
+
+
+
+Row
+-------------------------------------
+
+### Plot of Features
+
+```{r, echo = FALSE}
+
+
+varList <- list(c("bill_length_mm", "body_mass_g"), c("bill_depth_mm", "body_mass_g"),                   c("flipper_length_mm", "body_mass_g"), c("bill_length_mm", "bill_depth_mm"),                  c("bill_length_mm", "flipper_length_mm"), c("bill_depth_mm", "flipper_length_mm"))
+
+
+renderPlot({ 
+  
+  xvar <- unlist(varList[as.numeric(input$toPlot)])[1]
+  yvar <- unlist(varList[as.numeric(input$toPlot)])[2]
+  
+  
+  ggplot(selPenguin(), aes_string(xvar, yvar)) +
+  geom_point(color = "orangered", size = 3, alpha = 0.8) +
+  theme_minimal() +
+  labs(x = xvar, y= yvar
+) 
+})
+
+#color = "Penguin species",
+    #scale_color_manual(values = c("darkorange","purple","cyan4"))
+```
+
+
+### All penguins revealed
+
+```{r Adelie image}
+
+
+renderImage({  
+  if(input$speciesT =="-select-"){
+    path <- paste0("-select-", ".png")
+  } 
+  else {
+    path <- paste0(input$speciesT, ".JPG")}
+    list(src = path, height = "100%", align="right")
+    }
+  )
+
+```
+
+
+All birds
+=====================================   
+
+Row
+-------------------------------------
+
+### No. of Penguins measured in total
+
+```{r n_penguins}
+
+n_penguins <- nrow(penguins)
+valueBox(n_penguins, icon = "fa-calculator", color = "grey")  
+```
+
+### Average culmen length
+
+```{r cul_length}
+cul_length <- paste0(round(mean(penguins$bill_length_mm, 
+                                na.rm = TRUE)), " mm")
+valueBox(cul_length, 
+         icon = "fa-tape", color = "grey")  
+```
+
+
+### Average culmen depth
+
+```{r cul depth}
+cul_depth <- paste0(round(mean(penguins$bill_depth_mm, 
+                                na.rm = TRUE)), " mm")
+
+valueBox(cul_depth, 
+         icon = "fa-tape", color = "grey")
+
+```
+
+
+### What are we measuring?
+
+```{r image}
+knitr::include_graphics("culmen_depth.png")
+```   
+
+
+Row
+-------------------------------------
+
+### Average flipper length 
+
+```{r flip_length}
+
+flip_length <- paste0(round(mean(penguins$flipper_length_mm, 
+                                na.rm = TRUE)), " mm")
+valueBox(flip_length, 
+         icon = "fa-tape", color = "grey")
+
+
+```
+
+
+### Average body mass
+
+```{r mass}
+mass <- round(mean(penguins$body_mass_g, na.rm = TRUE))
+
+gauge(mass, min = min(penguins$body_mass_g, na.rm = TRUE), 
+      max = max(penguins$body_mass_g, na.rm = TRUE), 
+      symbol = 'g', 
+      gaugeSectors(
+        success = c(6000, 6300), 
+        warning = c(3000, 5999), 
+        danger = c(2700, 2999)),
+      abbreviate = FALSE
+
+)
+```
+
+
+### Where do we live?
+
+```{r}
+library(leaflet)
+
+islands <- data.frame(names = c("Biscoe", "Dream", "Torgersen"),
+                       lat = c(-65.4333, -64.7333, -64.7667),
+                       lon= c(-65.5000, -64.2333, -64.0833))
+leaflet(islands) %>%
+  addTiles() %>%
+  addMarkers(label= ~names, lat=~lat, lng = ~lon, 
+             labelOptions = labelOptions(noHide=TRUE))
+
+```
+
+
