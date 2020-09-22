@@ -1,4 +1,4 @@
 # penguins_dashboard_app
 dashboard_with_shiny_app
 
-<img src="PenguinsDashboardDemo.gif" width ="1000">
+<img src="PenguinsDashboardDemo.gif" width ="800">
