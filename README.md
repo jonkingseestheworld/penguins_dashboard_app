@@ -1,5 +1,5 @@
-# penguins_dashboard_app
-dashboard_with_shiny_app
+# Antarctica Penguins Learning Dashboard
+Dashboard with Shiny
 
 <a href="https://johnnykl-rshiny.shinyapps.io/penguins_learning_dashboard/" target="_blank">Try the interactive R dashboard here!</a>
 
