@@ -8,4 +8,4 @@ R Dashboard with Shiny
 
 
 ## Related Links:
-<b>[palmerpenguins]</b>(https://allisonhorst.github.io/palmerpenguins/) -- To know more about the palmerpenguins dataset. 
+<a href="https://allisonhorst.github.io/palmerpenguins/"><b>[palmerpenguins]</b></a> -- To know more about the palmerpenguins dataset. 
