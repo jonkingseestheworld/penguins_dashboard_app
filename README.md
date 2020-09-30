@@ -8,4 +8,7 @@ R Dashboard with Shiny
 
 
 ## Related Links:
-<a href="https://allisonhorst.github.io/palmerpenguins/"><b>[palmerpenguins]</b></a> -- To know more about the palmerpenguins dataset. 
+<a href="https://allisonhorst.github.io/palmerpenguins/"><b>palmerpenguins</b></a> -- To know more about the 'palmerpenguins' dataset. 
+
+<a href="https://samtoet.cool/posts/intro-to-flexdashboard-with-penguins/"><b>Sam Toet's example </b></a> -- Another example of a static dashboard
+
